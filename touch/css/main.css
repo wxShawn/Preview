@@ -1,0 +1,81 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: #f0e7d1;
+}
+
+.touch {
+    position: relative;
+    background: #333;
+    height: 100vh;
+    overflow: hidden;
+}
+
+@media (min-width: 992px) {
+    .touch {
+        width: 400px;
+        height: 700px;
+        margin: 20px auto 0;
+    }
+}
+
+.ui {
+    position: absolute;
+    width: 100%;
+    height: 40px;
+    z-index: 1;
+}
+
+.score-board {
+    height: 40px;
+    background: #fff;
+}
+
+/* .score-board > p {
+    margin: 10px 0;
+} */
+
+.time {
+    float: left;
+    margin: 10px 0 10px 50px;
+}
+
+.score {
+    float: right;
+    margin: 10px 50px 10px 0;
+}
+
+.life {
+    position: absolute;
+    bottom: -70px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #fff;
+    font-size: 30px;
+}
+
+.start {
+    position: absolute;
+    bottom: 0;
+    width: 80px;
+    height: 80px;
+    left: 50%;
+    top: 250px;
+    transform: translateX(-50%);
+    border: none;
+    border-radius: 50%;
+    background: rgb(228, 81, 81);
+    color: #fff;
+}
+
+.con {
+    position: relative;
+    height: 100%;
+}
+
+.square {
+    position: absolute;
+    width: 25%;
+    height: 100px;
+    top: -100px;
+}
