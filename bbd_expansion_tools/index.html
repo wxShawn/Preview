@@ -89,7 +89,7 @@
         if(totalPage > 0) {
           this.getRegisterList(totalPage-1, newData);
         } else {
-          var csvData = 'id,name,mobile,storename,province,city,county,address,createTime,updateTime,';
+          var csvData = 'id,name,mobile,storename,province,city,county,address,createTime,updateTime,operatorName,status';
           for (let i = 0; i < oldData.length; i++) {
             csvData += '\r\n';
             for (let item in oldData[i]) {
