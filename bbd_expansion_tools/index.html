@@ -7,161 +7,68 @@
   <title>笔笔达工具</title>
 </head>
 <body>
-  <h3>登录</h3>
+  <h2>登录</h2>
   <input type="text" id="account" placeholder="手机号">
   <input type="password" id="password" placeholder="密码">
   <button id="login"">登录</button>
   <p id="login-msg" style="color: #f00"></p>
-  <h3>功能</h3>
-  <button id="export-register-list">导出申请注册商户列表</button>
+
+  <h2>功能</h2>
+  <h3>商户列表：</h3>
+  <ul>
+    <li>审核成功商户列表：<button id="export-merchant-list">导出</button></li>
+  </ul>
+  <h3>申请注册：</h3>
+  <ul>
+    <li>申请注册列表：<button id="export-register-list">导出</button></li>
+    <li>批量处理申请(未完成)：<input type="file" id="process-register" accept=".csv" multiple="false" disabled></li>
+  </ul>
+
+  <script src="./js/common.js"></script>
+  <script src="./js//ajax.js"></script>
+  <script src="./js/api.js"></script>
 </body>
 <script>
   window.onload = function() {
-    let msgBox = document.getElementById('login-msg');
     //渲染当前登录信息
+    let msgBox = document.getElementById('login-msg');
     msgBox.innerText = cookie.get('loginMsg') ? cookie.get('loginMsg') : '当前未登录';
     
-    let loginBtn = document.getElementById('login');
     //登录
+    let loginBtn = document.getElementById('login');
     loginBtn.onclick = function() {
       login();
     }
 
-    let exportRegisterList = document.getElementById('export-register-list');
+    //导出商户列表
+    let exportMerchantList = document.getElementById('export-merchant-list');
+    exportMerchantList.onclick = function() {
+      merchantList.getTotalPage(totalPage => {
+        merchantList.getMerchantList(totalPage);
+      });
+    }
+    
     //导出申请注册商户列表
+    let exportRegisterList = document.getElementById('export-register-list');
     exportRegisterList.onclick = function() {
       merchantRegister.getTotalPage(res => {
         merchantRegister.getRegisterList(res);
       });
     }
-  }
 
-  //封装cookie操作
-  const cookie = {
-    //设置cookie
-    set: function(key, value, exHours) {
-      let text = `${key}=${value};`;
-      if (exHours && typeof exHours == 'number') {
-        let d = new Date();
-        d.setTime(d.getTime() + (exHours * 60 * 60 * 1000));
-        let expires = `expires=${d.toGMTString()}`;
-        text = text + expires;
-      }
-      document.cookie = text;
-      return text;
-    },
-
-    //读取cookie
-    get: function(key) {
-      let list = document.cookie.split(/;|=|\s/);
-      for (let i = 0; i < list.length; i++) {
-        if (list[i] == key) {
-          return list[i + 1];
-        }
-      }
-    },
-
-    //删除cookie
-    del: function(key) {
-      let text = `${key}=;expires=Thu, 01 Jan 1970 00:00:00 GMT`;
-      document.cookie = text;
-      return text;
-    }
-  }
-
-  //商户申请注册
-  const merchantRegister = {
-    //获取申请注册列表
-    getRegisterList: function(totalPage, oldData) {
-      ajax({
-        type: 'post',
-        url: 'https://api.mhbbd.com/bibida/web/regapply/list',
-        data: `{"beginTime": null, "city": null, "county": null, "endTime": null, "mobile": null, "pageNo": ${totalPage}, "pageSize": 100, "province": null}`
-      }, res => {
-        let data = JSON.parse(res).result.list;
-
-        if (!oldData) {
-          oldData = [];
-        }
-
-        let newData = oldData.concat(data);
-        
-        if(totalPage > 0) {
-          this.getRegisterList(totalPage-1, newData);
-        } else {
-          var csvData = 'id,name,mobile,storename,province,city,county,address,createTime,updateTime,operatorName,status';
-          for (let i = 0; i < oldData.length; i++) {
-            csvData += '\r\n';
-            for (let item in oldData[i]) {
-              csvData += `${oldData[i][item]},`;
-            }
+    //根据导入的id列表处理商户注册申请(未完成)
+    let processRegister = document.getElementById('process-register')
+    processRegister.onchange = function() {
+      if(this.files.length){
+        readFile(this.files[0], content => {
+          let list = content.split(/\r\n/);
+          for (let i = 0; i < list.length; i++) {
+            merchantRegister.processRegister(list[i]);
           }
-          exportCsv('export.csv', csvData);
-        }
-      });
-    },
-    //获取申请注册列表页数
-    getTotalPage: function(callBack) {
-      ajax({
-        type: 'post',
-        url: 'https://api.mhbbd.com/bibida/web/regapply/list',
-        data: `{"beginTime": null, "city": null, "county": null, "endTime": null, "mobile": null, "pageNo": 1, "pageSize": 100, "province": null}`
-      }, res => {
-        let totalPage = JSON.parse(res).result.totalPage;
-        callBack(totalPage);
-      });
-    },
-  }
-
-  //ajax
-  function ajax(options, res) {
-    let xhr = new XMLHttpRequest();
-    xhr.open(options.type, options.url);
-    if (cookie.get('token')) {
-      xhr.setRequestHeader('token', cookie.get('token'));
-    }
-    xhr.setRequestHeader('Content-Type', "application/json; charset=utf-8");
-    if(options.data) {
-      xhr.send(options.data);
-    } else {
-      xhr.send();
-    }
-    xhr.onload = function() {
-        res(xhr.responseText);
-    }
-  }
-
-  //登录
-  function login() {
-    let account = document.getElementById('account').value;
-    let password = document.getElementById('password').value;
-    ajax({
-      type: 'post',
-      url: 'https://api.mhbbd.com/bibida/login/login',
-      data: `{"account": "${account}", "passWord": "${password}"}`
-    }, res => {
-      let data = JSON.parse(res);
-      let msgBox = document.getElementById('login-msg');
-      if (data.success && data.success == true) {
-        msgBox.innerText = `登录成功，当前用户：${data.result.userName}`;
-      } else {
-        msgBox.innerText = '登录失败，手机号或密码不正确';
+        });
       }
-      cookie.set('token', data.result.token);
-      cookie.set('loginMsg', `登录成功，当前用户：${data.result.userName}`);
-    });
-  }
+    }
 
-  //导出csv
-  function exportCsv(fileName, text) {
-    let link = document.createElement('a');
-    link.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-    link.setAttribute('download', fileName);
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   }
-  
 </script>
 </html>
