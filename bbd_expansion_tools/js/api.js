@@ -53,8 +53,7 @@ const merchantList = {
       if(page > 0) {
         this.getMerchantList(page-1, newData);
       } else {
-        var csvData = `id,商户名称,商户号,商户联系人,联系人手机号,省,市,区,门头照,代理商,
-        进件专员,状态,商户状态,创建时间,更新时间`;
+        var csvData = 'id,商户名称,商户号,商户联系人,联系人手机号,省,市,区,门头照,代理商,进件专员,状态,商户状态,创建时间,更新时间';
         for (let i = 0; i < oldData.length; i++) {
           csvData += '\r\n';
           for (let item in oldData[i]) {
