@@ -14,7 +14,8 @@ function login() {
     } else {
       msgBox.innerText = '登录失败，手机号或密码不正确';
     }
-    cookie.set('token', data.result.token);
+    console.log(data.result.token);
+    sessionStorage.setItem('token', data.result.token);
     cookie.set('loginMsg', `登录成功，当前用户：${data.result.userName}`);
   });
 }
@@ -23,6 +24,9 @@ function login() {
 const merchantList = {
   //获取商户列表（已通过审核）
   getMerchantList: function(page, oldData) {
+    const msg = document.getElementById('export-merchant-list-msg');
+    const pageCount = document.getElementById('pageCount');
+    msg.style.display = 'inline';
     ajax({
       type: 'post',
       url: 'https://api.mhbbd.com/bibida/web/merchant/mchList',
@@ -51,9 +55,11 @@ const merchantList = {
       let newData = oldData.concat(data);
       
       if(page > 0) {
+        pageCount.innerText = page;
         this.getMerchantList(page-1, newData);
       } else {
-        var csvData = 'id,商户名称,商户号,商户联系人,联系人手机号,省,市,区,门头照,代理商,进件专员,状态,商户状态,创建时间,更新时间';
+        msg.style.display = 'none';
+        var csvData = `id,商户名称,商户号,商户联系人,联系人手机号,省,市,区,门头照,代理商,进件专员,状态,商户状态,创建时间,更新时间`;
         for (let i = 0; i < oldData.length; i++) {
           csvData += '\r\n';
           for (let item in oldData[i]) {

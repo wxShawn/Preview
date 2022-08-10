@@ -8,15 +8,18 @@
 </head>
 <body>
   <h2>登录</h2>
-  <input type="text" id="account" placeholder="手机号">
-  <input type="password" id="password" placeholder="密码">
+  <input type="text" id="account" placeholder="手机号" value="18382874691" />
+  <input type="password" id="password" placeholder="密码" value="wx123456" />
   <button id="login"">登录</button>
   <p id="login-msg" style="color: #f00"></p>
 
   <h2>功能</h2>
   <h3>商户列表：</h3>
   <ul>
-    <li>审核成功商户列表：<button id="export-merchant-list">导出</button></li>
+    <li>审核成功商户列表：
+      <button id="export-merchant-list">导出</button>
+      <span id="export-merchant-list-msg" style="display: none;">请求中...剩余<span id="pageCount"></span>项</span>
+    </li>
   </ul>
   <h3>申请注册：</h3>
   <ul>
